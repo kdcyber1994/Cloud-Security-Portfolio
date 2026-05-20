@@ -21,7 +21,7 @@ In a pure cloud-native or hybrid environment, user creation triggers downstream 
    * **Display Name:** Defined using standardized enterprise formats (`Tester`).
    * **Password Rules:** Initial password established with account activation controls toggled on (`Account enabled: Yes`).
 
-[Microsoft Entra ID Basic User Configuration](./images/user-basics-setup.png)
+![Microsoft Entra ID Basic User Configuration](./images/user-basics-setup.png)
 
 ---
 
@@ -33,7 +33,7 @@ In a pure cloud-native or hybrid environment, user creation triggers downstream 
    * **Directory Roles:** To grant granular administrative permissions.
 3. Executed the final structural audit on the **Review + create** summary screen before committing the user instantiation write operation to the cloud graph database.
 
-[Microsoft Entra ID Review and Create Validation Screen](./images/user-review-create.png)
+![Microsoft Entra ID Review and Create Validation Screen](./images/user-review-create.png)
 
 ---
 
@@ -42,7 +42,7 @@ In a pure cloud-native or hybrid environment, user creation triggers downstream 
 2. Confirmed successful tenant object generation, verifying that the new identity is active, designated as a standard account type (`User type: Member`), and strictly isolated as a cloud-only object (`On-premises sync enabled: No`).
 
 
-[Microsoft Entra ID Activated Directory State Verified](./images/entra-users-list.png)
+![Microsoft Entra ID Activated Directory State Verified](./images/entra-users-list.png)
 
 ---
 
