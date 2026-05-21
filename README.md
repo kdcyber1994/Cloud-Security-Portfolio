@@ -13,6 +13,7 @@ Welcome to my enterprise cloud security repository. This space serves as a live 
 
 ## 🧪 Hands-On Engineering Exercises
 * **[Lab 01: Cloud-Native User Provisioning](./01-identity-access-management/lab-01-user-provisioning.md)** — Step-by-step walkthrough of cloud identity creation and configuration parameters within a verified sandbox tenant.
+* **[Lab 02: Policy-Driven MFA via Entra Conditional Access](./01-identity-access-management/lab-02-conditional-access-mfa.md)** — Transitioning a tenant from static Security Defaults to granular, context-aware authentication boundaries. Includes group-scoped logic staging and post-verification account decommissioning.
 
 ---
 *Maintained by Kevin Dunn — Security Engineer*
