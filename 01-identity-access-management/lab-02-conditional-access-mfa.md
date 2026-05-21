@@ -1,17 +1,14 @@
 # Lab 02: Policy-Driven MFA via Microsoft Entra Conditional Access
 
-## Objective
-This lab demonstrates the migration of an enterprise cloud tenant from static, unconfigurable global Security Defaults to an agile, context-aware Zero Trust identity boundary using **Microsoft Entra Conditional Access**. The implementation establishes an explicit identity-verification checkpoint, targeting scoped user groups to enforce multifactor authentication (MFA) while mitigating administrative lockout risks and reducing post-lab attack surfaces.
+## 🎯 Lab Objective
+To demonstrate the migration of an enterprise cloud tenant from static, unconfigurable global Security Defaults to an agile, context-aware Zero Trust identity boundary using **Microsoft Entra Conditional Access**. The implementation establishes an explicit identity-verification checkpoint, targeting scoped user groups to enforce multifactor authentication (MFA) while mitigating administrative lockout risks and reducing post-lab attack surfaces.
+
+## ⚙️ Architectural Context
+Microsoft Entra tenants ship with **Security Defaults** enabled out-of-the-box. While secure for basic setups, Security Defaults apply a broad, unconfigurable policy block that restricts the use of granular Conditional Access logic. Transitioning a tenant to custom Conditional Access policies allows an organization to implement advanced, context-aware rule blocks based on identity, device compliance, location, and application risk.
 
 ---
 
-## Architectural Workflow
-To implement a resilient identity boundary, the configuration follows a deterministic validation path: 
-Provisioning -> Boundary Grouping -> Tenant Posture Transition -> Rule Engineering -> Adversarial Verification.
-
----
-
-## Technical Implementation Steps
+## 🛠️ Execution Walkthrough
 
 ### Step 1: Target Identity Provisioning
 To isolate testing from production administrators, a dedicated non-privileged identity was created via **Identity > Users > All Users**.
@@ -19,9 +16,7 @@ To isolate testing from production administrators, a dedicated non-privileged id
 * **User Principal Name (UPN):** `testuser@KdunnCloudLabs.onmicrosoft.com`
 * **Administrative Roles:** None (Standard User)
 
-*File Reference: `Screenshot 2026-05-21 113035.png`*
-
----
+![User Provisioning](./images/lab02-user-created.png)
 
 ### Step 2: Directory Group Security Architecture
 To implement scalable access control, permissions were mapped to a security group rather than an individual account. Navigated to **Identity > Groups > All Groups** and initialized the directory object:
@@ -30,20 +25,14 @@ To implement scalable access control, permissions were mapped to a security grou
 * **Membership Type:** Assigned
 * **Direct Members:** `testuser`
 
-*File References: `Screenshot 2026-05-21 113356.png`, `Screenshot 2026-05-21 113527.png`, `Screenshot 2026-05-21 113600.png`*
-
----
+![Group Membership Settings](./images/lab02-group-membership.png)
 
 ### Step 3: Tenant Posture Hardening & Transition
-Microsoft Entra tenants ship with **Security Defaults** enabled out-of-the-box. While secure for basic setups, Security Defaults apply a broad policy block that restricts the use of granular Conditional Access logic. 
-
 1. Navigated to **Identity > Overview > Properties**.
 2. Selected **Manage security defaults** at the base of the blade.
 3. Toggled the configuration to **Disabled**, selecting *'My organization is using Conditional Access'* as the technical justification.
 
 This step safely transitioned the tenant control plane to an advanced enterprise posture, allowing custom evaluation rule blocks to take effect.
-
----
 
 ### Step 4: Engineering the Conditional Access Policy
 Navigated to **Identity > Protection > Conditional Access** and initialized a new policy block designated as **"MFA Pilot"** utilizing the following technical specifications:
@@ -55,22 +44,15 @@ Navigated to **Identity > Protection > Conditional Access** and initialized a ne
 | **Access Controls: Grant** | Control: **Require multifactor authentication** | Intercepts tokens to mandate secondary cryptographic proof before issuing a SAML/OIDC claim. |
 | **Enable Policy** | State: **On** | Bypasses *Report-only* mode to immediately enforce live evaluation. |
 
-*File References: `Screenshot 2026-05-21 114232.png`, `Screenshot 2026-05-21 115213.png`, `Screenshot 2026-05-21 115437.png`, `Screenshot 2026-05-21 120038.png`*
+![Conditional Access Configuration Matrix](./images/lab02-policy-configuration.png)
 
 ---
 
-## Defensive Verification & Adversarial Emulation
-
-To validate that the policy engine accurately intercepts out-of-compliance authentication loops, an adversarial sign-in test was executed from an unauthenticated context:
-
-1. Initialized an isolated browser session (**Chrome Incognito Mode**) to clear pre-existing token caches and session cookies.
-2. Navigated directly to the Microsoft Entra admin center (`portal.azure.com`) and entered the UPN for `testuser`.
-3. **Verification Result:** The authentication handshake successfully processed the first-factor password validation, parsed the user's directory metadata, matched their membership within `MFA-Test-Group`, and triggered the **MFA Pilot** policy interception layer. 
-4. The user was blocked from accessing the portal and rerouted to the mandatory `Keep your account secure` enrollment workflow to register a modern verification token.
-
-*File References: `Screenshot 2026-05-21 120447.jpg`, `Screenshot 2026-05-21 120553.jpg`*
+## 🛡️ Defensive Engineering Takeaways
+* **Scope Isolation (Lockout Prevention):** Applying policy rules globally without structural exclusion filters poses a significant administrative lockout risk. Scoping the pilot policy explicitly to an assigned Security Group (`MFA-Test-Group`) safeguards production administrative access during the rollout phase.
+* **Granular Policy Control vs. Security Defaults:** While Security Defaults provide an easy baseline, they force a tenant into an "all-or-nothing" posture. Shifting to Conditional Access gives security teams the power to exempt legacy service accounts, adjust policies for regional offices, or enforce strict step-up authentication exclusively for high-privilege apps.
 
 ---
 
-## Identity Lifecycle Decommissioning
-> 🔒 **Security Best Practice:** Following successful functional validation of the identity checkpoint, the `testuser` account status was explicitly modified within the Entra directory to **Account Status: Disabled**. In production cloud architecture, leaving unmonitored test accounts active provides opportunistic actors a vector for password spraying and initial access. Defensive cleanup reduces the tenant's persistent attack surface.
+## 🔒 Post-Lab Hardening & Incident Lifecycle Actions
+* **Identity Lifecycle Decommissioning:** Following successful functional validation of the identity checkpoint, the `testuser` account status was explicitly modified within the Entra directory to **Account Status: Disabled**. In production cloud architecture, leaving unmonitored test accounts active provides opportunistic actors a vector for password spraying and initial access. Defensive cleanup reduces the tenant's persistent attack surface.
