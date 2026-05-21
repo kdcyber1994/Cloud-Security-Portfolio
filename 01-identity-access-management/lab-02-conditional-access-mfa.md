@@ -48,6 +48,18 @@ Navigated to **Identity > Protection > Conditional Access** and initialized a ne
 
 ---
 
+## 🔍 Defensive Verification & Adversarial Emulation
+
+To validate that the policy engine accurately intercepts out-of-compliance authentication loops, an adversarial sign-in test was executed from an unauthenticated context:
+
+1. Initialized an isolated browser session (**Chrome Incognito Mode**) to clear pre-existing token caches and session cookies.
+2. Navigated directly to the Microsoft Entra admin center (`portal.azure.com`) and entered the UPN for `testuser`.
+3. **Verification Result:** The authentication handshake successfully processed the first-factor password validation, parsed the user's directory metadata, matched their membership within `MFA-Test-Group`, and triggered the **MFA Pilot** policy interception layer. 
+4. The user was blocked from accessing the portal and rerouted to the mandatory `Keep your account secure` enrollment workflow to register a modern verification token.
+
+![MFA Interception Proof](./images/lab02-mfa-prompt.png)
+
+---
 ## 🛡️ Defensive Engineering Takeaways
 * **Scope Isolation (Lockout Prevention):** Applying policy rules globally without structural exclusion filters poses a significant administrative lockout risk. Scoping the pilot policy explicitly to an assigned Security Group (`MFA-Test-Group`) safeguards production administrative access during the rollout phase.
 * **Granular Policy Control vs. Security Defaults:** While Security Defaults provide an easy baseline, they force a tenant into an "all-or-nothing" posture. Shifting to Conditional Access gives security teams the power to exempt legacy service accounts, adjust policies for regional offices, or enforce strict step-up authentication exclusively for high-privilege apps.
