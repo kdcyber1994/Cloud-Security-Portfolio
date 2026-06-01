@@ -78,15 +78,22 @@ Since setting up a passkey requires a direct Bluetooth connection between your c
 
 ![QR-Code Handshake](./images/Sign-In-With-Passkey.png)
 
-3. Scanned the QR code and used biometrics on the phone, which triggers a quick Bluetooth check to make sure the device is physically next to the computer.
+3. Scanned the QR code, which brought up a prompt on the phone to confirm the login. (Don't mind my finger, the important thing here is that scanning the QR code prompted us to use our passkey to sign in)
+
+<div align="center">
+  <img src="./images/Passkey-Prompt.jpg" alt="Handset Interface Awaiting Input" width="400" />
+</div>
+<br>
+
+4. Used biometrics on the phone, which triggers a quick Bluetooth check to make sure the device is physically next to the computer.
 
 ![Biometric Verification Checkpoint](./images/Sign-In-With-Passkey-Success.png)
 
-4. Confirmed successful entry into the portal as a standard test user without typing a single password or dealing with standard push notifications.
+5. Confirmed successful entry into the portal as a standard test user without typing a single password or dealing with standard push notifications.
 
 ![Successful Authenticated Session](./images/Logged-In-View-TestUser.png)
 
-5. Checked the user's security info in the admin portal to confirm the new passkey was successfully registered alongside old methods and set as the main high-security option.
+6. Checked the user's security info in the admin portal to confirm the new passkey was successfully registered alongside old methods and set as the main high-security option.
 
 ![Security Info State Verification](./images/Security-Info-TestUser.png)
 
