@@ -1,84 +1,74 @@
-# Lab 03: Phishing-Resistant Authentication Strengths via Microsoft Entra ID FIDO2 Passkeys
+# Lab 03: Phishing-Resistant MFA via Entra ID FIDO2 Passkeys
 
 ## 🎯 Lab Objective
-To establish a phishing-resistant identity perimeter within a Microsoft Entra tenant by transitioning from standard, interceptable multi-factor authentication to advanced **Authentication Strengths**. This lab configures a custom cryptographic baseline enforcing **FIDO2 Passkeys** via the Microsoft Authenticator app, mitigates Adversary-in-the-Middle (AiTM) risks for high-privilege access, and verifies the complete identity onboarding, credential enrollment, and cross-device authentication lifecycle end-to-end.
+The goal of this lab is to move an Entra ID tenant away from standard MFA methods like push notifications and configure custom Authentication Strengths to enforce hardware-bound FIDO2 Passkeys. This setup addresses Adversary-in-the-Middle (AiTM) phishing risks by verifying user onboarding, registering mobile devices as cryptographic tokens, and testing cross-device authentication flows.
 
 ## ⚙️ Architectural Context
-Traditional multi-factor authentication (MFA)—such as SMS, voice, or standard app push notifications—remains vulnerable to session hijacking via Adversary-in-the-Middle (AiTM) phishing proxies (e.g., *Evilnginx*) and MFA fatigue attacks.
+Traditional MFA options like SMS, voice calls, or standard authenticator app push notifications can be intercepted by reverse-proxy phishing kits like Evilnginx. They are also highly vulnerable to MFA fatigue attacks. 
 
-By implementing **FIDO2 Passkeys**, authentication is bound cryptographically to the exact domain origin (`https://login.microsoftonline.com`). If a user attempts to authenticate against a fraudulent proxy domain, the client browser’s WebAuthn API detects the mismatch and the client hardware enclave physically refuses to release the cryptographic assertion, rendering credential harvesting and proxy-based session hijacking impossible.
+FIDO2 passkeys solve this issue by binding the authentication handshake directly to the official login domain. When a user tries to authenticate, the local browser verifies the site domain. If there is a mismatch caused by an attacker proxy, the hardware enclave drops the request. This completely eliminates credential harvesting and session hijacking attempts.
 
 ---
 
 ## 🛠️ Execution Walkthrough
 
 ### Step 1: Initial Identity Onboarding Interception
-Before an identity can be provisioned with high-assurance credentials, it must be securely guided through the initial tenant enrollment phase.
-1. Attempted to access the Azure administrative portal as `testuser@kdunncloudlabs.onmicrosoft.com`.
-2. The account was immediately met with a directory-enforced **More information required** gate block, ensuring unconfigured identities are immediately routed to security registration.
+Unconfigured identities must be forced through a controlled enrollment loop before they can register high-assurance credentials.
+1. Attempted to log into the administrative portal using `testuser@kdunncloudlabs.onmicrosoft.com`.
+2. The account was stopped by a directory-enforced "More information required" prompt to force security registration.
 
 ![Directory Onboarding Intercept](./images/More-Info-Needed-Prompt.jpg)
 
-3. Upon clicking Next, the user was routed into a baseline multi-factor approval loop, receiving an **Approve sign in request** prompt presenting a target matching-number challenge to anchor the current session.
+3. Clicked Next and completed a standard number-matching push notification to establish a verified baseline session.
 
 ![MFA Baseline Verification](./images/Authenticator-Request.jpg)
 
 ### Step 2: Enrolling the Device-Bound FIDO2 Passkey
-With a verified session established, the target identity registers a hardware-backed mobile passkey within the tenant-allowed bounds.
-1. Navigated to the security registration plane (`https://mysignins.microsoft.com/register`). The platform initializes the **Sign in faster with your face, fingerprint, or PIN** portal, explicitly scoping allowed infrastructure to organizationally approved mobile apps.
+With a secure session established, the next step is to bind a mobile device passkey to the account.
+1. Navigated to the registration portal at `https://mysignins.microsoft.com/register` to trigger the passkey configuration workflow.
 
 ![Hardware Onboarding Portal](./images/Android-Authenticator-Setup.jpg)
 
-2. Clicking Next invokes the native WebAuthn client. The user assigns a local label to the token under **Let's name your passkey**, identifying the hardware asset as `Android`.
+2. Launched the WebAuthn client handler and named the new hardware token `Android` to keep track of the registered asset.
 
 ![Cryptographic Token Labeling](./images/Android-Authenticator-Setup-Naming.jpg)
 
-3. The cryptographic handshake successfully completes, establishing the mobile device as a valid FIDO2 credential provider and rendering the final confirmation screen: **Passkey created**.
+3. Completed the biometric enrollment on the physical phone to finalize the key creation screen.
 
 ![Registration Confirmation](./images/Android-Passkey-Created.jpg)
 
-4. A post-enrollment audit of the user's profile verified the active registration posture under **Security info**. The account successfully displays both the legacy push mechanism and the new high-assurance `Passkey (Device bound)` option mapped directly to an Android device.
+4. Audited the profile security settings to verify that the device-bound passkey was successfully registered alongside legacy options.
 
 ![Security Info State Verification](./images/Security-Info-TestUser.png)
 
 ### Step 3: Upgrading Conditional Access to Authentication Strengths
-With the cryptographic keys registered, the tenant-wide access plane must be re-engineered to strictly mandate their use, disallowing weaker forms of MFA.
-1. Navigated to **Identity > Protection > Conditional Access > Policies** and reviewed the baseline **MFA Pilot** rule structure, which originally relied on the generic `Require multifactor authentication` grant control.
+After registering the key, the tenant policy needs to change from accepting generic MFA to strictly requiring phishing-resistant credentials.
+1. Opened the existing "MFA Pilot" Conditional Access policy which originally relied on the basic "Require multifactor authentication" grant rule.
 
 ![Legacy Policy Assessment](./images/MFA-Grant.png)
 
-2. Upgraded the control plane by checking **Require authentication strength** and binding it directly to the custom compiled profile: `Ignite phishing resistant MFA`. This policy shift prevents the use of standard push notifications or numeric matching for scoped administrative roles.
+2. Modified the policy controls to select "Require authentication strength" and mapped it to the custom `Ignite phishing resistant MFA` profile. This explicitly blocks standard push notifications or numeric codes.
 
 ![Enforcing Modern Strengths](./images/MFA-Grant-Setup.png)
 
 ### Step 4: End-to-End Cross-Device Authentication Verification
-To validate the resilience of the implementation, an end-to-end authentication sequence was tested from a clean, isolated browser session.
-1. Initiated a new login attempt from an isolated browser window. The browser intercepted the request with a native Windows Security **Choose a passkey** dialogue box, prompting the analyst to select an *iPhone, iPad, or Android device*.
+The final step is testing the updated login path from a fresh, unauthenticated context.
+1. Opened a separate browser window and initiated a login attempt. The browser intercepted the session with a Windows Security window asking for a passkey from a mobile device.
 
 ![Proximity Challenge](./images/Choose-Passkey-Prompt.jpg)
 
-2. Selecting the mobile track generated a localized WebAuthn broker QR code, establishing an out-of-band, proximity-based Bluetooth/FIDO2 channel handshake with the physical device.
+2. Selected the mobile device option to generate a localized WebAuthn broker QR code. This establishes an out-of-band proximity connection over Bluetooth.
 
 ![QR-Code Handshake](./images/Sign-In-With-Passkey.jpg)
 
-3. Upon scanning the QR code and completing biometric verification on the local hardware, the endpoint browser instantly transitioned to **Device connected! Continue on your device**.
+3. Scanned the QR code and provided biometric confirmation on the phone, causing the browser to immediately authorize the device connection.
 
 ![Biometric Verification Checkpoint](./images/Sign-In-With-Passkey-Success.jpg)
 
-4. The cross-device cryptographic verification successfully bypassed standard password vectors, routing the user cleanly to the Microsoft Entra admin center as a zero-privilege account ready for scoped tasking.
+4. Confirmed successful tenant entry as a zero-privilege user without sending a single password string across the wire.
 
 ![Successful Authenticated Session](./images/Logged-In-View-TestUser.png)
 
 ---
 
 ## 🔍 Defensive Verification & Tactical Takeaways
-
-* **Phishing Resistance Confirmed:** By tying the Conditional Access policy to the custom authentication strength, any attempt by `TestUser` to access administrative portals immediately demands a FIDO2 hardware handshake rather than an interceptable validation code.
-* **Explicit AAGUID Hardening:** Restricting allowed passkeys strictly to the *Microsoft Authenticator* AAGUID ensures that users cannot register unmanaged, consumer-grade external passkey stores. This maintains organizational governance over the devices holding corporate cryptographic secrets.
-* **Eradicating MFA Fatigue:** Because FIDO2 passkeys rely on proximity and biometric checks tied directly to the browser's origin evaluation, external actors cannot blindly spam notifications to a user's phone, entirely wiping out MFA fatigue or prompt-bombing as viable initial access vectors.
-
----
-
-## 🔒 Post-Lab Hardening & Incident Lifecycle Actions
-* **Policy Reversion:** To eliminate persistent sandbox exposure, the **MFA Pilot** Conditional Access policy was set to **Off** and the custom strength restrictions were archived.
-* **Identity Lifecycle Decommissioning:** Following successful validation of the cryptographic authentication flow, the `TestUser` account was safely returned to an **Account Status: Disabled** posture within the directory, eliminating stale account exposure and mitigating opportunistic initial access vectors.
