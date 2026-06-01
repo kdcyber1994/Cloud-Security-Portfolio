@@ -12,63 +12,96 @@ FIDO2 passkeys solve this issue by binding the authentication handshake directly
 
 ## 🛠️ Execution Walkthrough
 
-### Step 1: Initial Identity Onboarding Interception
-Unconfigured identities must be forced through a controlled enrollment loop before they can register high-assurance credentials.
-1. Attempted to log into the administrative portal using `testuser@kdunncloudlabs.onmicrosoft.com`.
-2. The account was stopped by a directory-enforced "More information required" prompt to force security registration.
+### Task 3: Enable Phishing-Resistant MFA for Login
+Before creating granular access rules, the FIDO2 security key authentication method must be enabled globally across the tenant.
+1. Navigated to **Identity > Protection > Authentication methods > Policies** within the Entra admin center.
+2. Selected **Passkey (FIDO2)** and toggled the state to **Enable** for the target users.
 
-![Directory Onboarding Intercept](./images/More-Info-Needed-Prompt.jpg)
+![Enabling FIDO2 Policy Globally](./images/Authentication-Policies.png)
+![Authentication Methods Main Policy Dashboard](./images/Authentication-Methods.png)
 
-3. Clicked Next and completed a standard number-matching push notification to establish a verified baseline session.
+#### Subtask 1 — Create a Custom Passkey Authentication Strength
+1. From the **Authentication methods** menu, switched to the **Authentication strengths** tab and selected **+ New authentication strength**.
 
-![MFA Baseline Verification](./images/Authenticator-Request.jpg)
+![Authentication Strengths Landing Page](./images/Authentication-Strength-Summary.png)
 
-### Step 2: Enrolling the Device-Bound FIDO2 Passkey
-With a secure session established, the next step is to bind a mobile device passkey to the account.
-1. Navigated to the registration portal at `https://mysignins.microsoft.com/register` to trigger the passkey configuration workflow.
+2. Named the configuration `Ignite phishing resistant MFA` and checked **Passkeys (FIDO2)** from the available methods list.
 
-![Hardware Onboarding Portal](./images/Android-Authenticator-Setup.jpg)
+![Creating Custom Strength Profile](./images/New-Authentication-Strength.png)
 
-2. Launched the WebAuthn client handler and named the new hardware token `Android` to keep track of the registered asset.
+3. Opened the **Advanced options** item directly under Passkeys (FIDO2). Marked the **Microsoft Authenticator** setting to enforce corporate app attestation via approved AAGUIDs, blocking unmanaged or consumer-grade password managers.
 
-![Cryptographic Token Labeling](./images/Android-Authenticator-Setup-Naming.jpg)
+![Advanced FIDO2 Configuration Enclave](./images/Advanced-Options-FIDO2.png)
+![Authentication Method Summary Verification](./images/Authentication-Method-Summary.png)
 
-3. Completed the biometric enrollment on the physical phone to finalize the key creation screen.
+#### Subtask 2 — Add Authentication Strength to the Conditional Access Policy
+1. Navigated to **Protection > Conditional Access > Policies** to review active access rules.
 
-![Registration Confirmation](./images/Android-Passkey-Created.jpg)
+![Conditional Access Policies Dashboard](./images/Conditional-Access-Policies.png)
 
-4. Audited the profile security settings to verify that the device-bound passkey was successfully registered alongside legacy options.
-
-![Security Info State Verification](./images/Security-Info-TestUser.png)
-
-### Step 3: Upgrading Conditional Access to Authentication Strengths
-After registering the key, the tenant policy needs to change from accepting generic MFA to strictly requiring phishing-resistant credentials.
-1. Opened the existing "MFA Pilot" Conditional Access policy which originally relied on the basic "Require multifactor authentication" grant rule.
+2. Opened the target pilot policy, which originally relied on the basic, legacy "Require multifactor authentication" grant rule.
 
 ![Legacy Policy Assessment](./images/MFA-Grant.png)
 
-2. Modified the policy controls to select "Require authentication strength" and mapped it to the custom `Ignite phishing resistant MFA` profile. This explicitly blocks standard push notifications or numeric codes.
+3. Modified the Access Controls under the **Grant** section: unmarked the generic MFA checkbox, marked **Require authentication strength**, and selected the custom `Ignite phishing resistant MFA` profile.
 
 ![Enforcing Modern Strengths](./images/MFA-Grant-Setup.png)
 
-### Step 4: End-to-End Cross-Device Authentication Verification
-The final step is testing the updated login path from a fresh, unauthenticated context.
-1. Opened a separate browser window and initiated a login attempt. The browser intercepted the session with a Windows Security window asking for a passkey from a mobile device.
+---
 
-![Proximity Challenge](./images/Choose-Passkey-Prompt.jpg)
+### Subtask 3: Configure an Android Passkey for User Login
+Because creating a passkey requires a direct Bluetooth proximity handshake between the workstation and the mobile device, this workflow was executed using a dedicated test identity outside of a virtualized context.
+1. Initiated a fresh login session. The account was stopped by a directory-enforced "More information required" prompt to force security registration.
 
-2. Selected the mobile device option to generate a localized WebAuthn broker QR code. This establishes an out-of-band proximity connection over Bluetooth.
+![Directory Onboarding Intercept](./images/More-Info-Needed-Prompt.png)
 
-![QR-Code Handshake](./images/Sign-In-With-Passkey.jpg)
+2. Approved a baseline number-matching push notification to securely establish the initial onboarding session context.
 
-3. Scanned the QR code and provided biometric confirmation on the phone, causing the browser to immediately authorize the device connection.
+![MFA Baseline Verification](./images/Authenticator-Request.png)
+![Initial MFA Session Entry](./images/MFA-Try.png)
+![Baseline MFA Step Validation](./images/MFA-Try1.png)
 
-![Biometric Verification Checkpoint](./images/Sign-In-With-Passkey-Success.jpg)
+3. When prompted to create a passkey in Microsoft Authenticator, selected **Having trouble?** followed by **Create your passkey a different way** to explicitly trigger the cross-device registration flow. Selected **Android** from the device platform list.
 
-4. Confirmed successful tenant entry as a zero-privilege user without sending a single password string across the wire.
+![Hardware Onboarding Portal](./images/Android-Authenticator-Setup.png)
+
+4. Initialized the local enrollment handler, named the hardware token `Android` for asset tracking, and used the phone's camera to scan the onboarding QR code to establish the secure Bluetooth link.
+
+![Cryptographic Token Labeling](./images/Android-Authenticator-Setup-Naming.png)
+![MFA Authenticator Baseline Registration](./images/MFA-Authenticator-Added.png)
+
+5. Completed the biometric confirmation on the physical phone to finalize the enrollment and write the key to the hardware enclave.
+
+![Registration Confirmation](./images/Android-Passkey-Created.png)
+
+---
+
+### Subtask 4: Log in with Phishing-Resistant MFA
+1. Opened a new unauthenticated window and entered the target identity credentials. The browser intercepted the session with a request for a hardware credential.
+
+![Proximity Challenge](./images/Choose-Passkey-Prompt.png)
+
+2. Selected the Android device option to display the localized passkey login QR code.
+
+![QR-Code Handshake](./images/Sign-In-With-Passkey.png)
+
+3. Scanned the QR code and provided biometric verification on the handset. This executes a localized Bluetooth proximity check to verify the physical device is in front of the terminal.
+
+![Biometric Verification Checkpoint](./images/Sign-In-With-Passkey-Success.png)
+
+4. Confirmed successful portal entry as a zero-privilege user without sending a single password string or standard push notification over the wire.
 
 ![Successful Authenticated Session](./images/Logged-In-View-TestUser.png)
+
+5. Audited the user's profile security info from the administrative portal to verify that the device-bound passkey was successfully registered alongside legacy options and marked as the primary high-assurance factor.
+
+![Security Info State Verification](./images/Security-Info-TestUser.png)
 
 ---
 
 ## 🔍 Defensive Verification & Tactical Takeaways
+
+* **Frictionless & Phishing-Resistant:** This method uses our Android device's camera to capture the QR code, which then instantly brings up our security key. This completely removes the need to type passwords, enter codes, or match numbers on a screen like traditional Authenticator push approvals.
+* **Phishing Resistance Works:** Binding the Conditional Access rules to an explicit authentication strength prevents the account from authenticating via weaker, phishable code channels.
+* **AAGUID Restrictions:** Restricting the accepted passkeys to the Microsoft Authenticator App stops users from registering unmanaged personal or consumer-grade password managers to store enterprise keys.
+* **No More MFA Fatigue:** Because the validation relies on origin checks and local proximity, external threat actors cannot generate blind push spam notifications to force an employee into an accidental approval.
