@@ -1,24 +1,24 @@
 # Lab 03: Phishing-Resistant MFA via FIDO2 Passkeys
 
 ## 🎯 Lab Objective
-The goal of this lab is to move an Entra ID tenant away from standard MFA methods like push notifications and configure custom Authentication Strengths to enforce hardware-bound FIDO2 Passkeys. This setup addresses Adversary-in-the-Middle (AiTM) phishing risks by verifying user onboarding, registering mobile devices as cryptographic tokens, and testing cross-device authentication flows.
+The goal of this lab is to move an Entra ID tenant away from standard MFA methods like push notifications and configure custom Authentication Strengths to enforce hardware-bound FIDO2 Passkeys. This setup stops modern proxy-based phishing attacks by securely onboarding the user, turning their phone into a passkey, and testing the login flow between devices.
 
 ## ⚙️ Architectural Context
-Traditional MFA options like SMS, voice calls, or standard authenticator app push notifications can be intercepted by reverse-proxy phishing kits like Evilnginx. They are also highly vulnerable to MFA fatigue attacks. 
+Standard MFA options like SMS, voice calls, or basic authenticator app push notifications are no longer enough to stop modern attacks. Attackers can easily bypass these methods using phishing kits to clone login pages, or they can just spam a user with notifications until they accidentally click approve.
 
-FIDO2 passkeys solve this issue by binding the authentication handshake directly to the official login domain. When a user tries to authenticate, the local browser verifies the site domain. If there is a mismatch caused by an attacker proxy, the hardware enclave drops the request. This completely eliminates credential harvesting and session hijacking attempts.
+FIDO2 passkeys fix this security gap by tying your login directly to the actual website domain. When you try to log in, your browser and your phone talk to each other to verify the exact site you are on. If a hacker tries to trick you using a look-alike phishing link, the passkey recognizes the fake domain and refuses to authenticate. This completely cuts off credential harvesting, session hijacking, and push notification fatigue.
 
 ---
 
 ## 🛠️ Execution Walkthrough
 
-### Task 3: Enable Phishing-Resistant MFA for Login
+### Enable Phishing-Resistant MFA for Login
 Before creating granular access rules, the FIDO2 security key authentication method must be enabled globally across the tenant.
 1. Navigated to **Identity > Protection > Authentication methods > Policies** within the Entra admin center.
 2. Selected **Passkey (FIDO2)** and toggled the state to **Enable** for the target users.
 
 ![Enabling FIDO2 Policy Globally](./images/Authentication-Policies.png)
-![Authentication Methods Main Policy Dashboard](./images/Authentication-Methods.png)
+
 
 #### Subtask 1 — Create a Custom Passkey Authentication Strength
 1. From the **Authentication methods** menu, switched to the **Authentication strengths** tab and selected **+ New authentication strength**.
@@ -29,7 +29,7 @@ Before creating granular access rules, the FIDO2 security key authentication met
 
 ![Creating Custom Strength Profile](./images/New-Authentication-Strength.png)
 
-3. Opened the **Advanced options** item directly under Passkeys (FIDO2). Marked the **Microsoft Authenticator** setting to enforce corporate app attestation via approved AAGUIDs, blocking unmanaged or consumer-grade password managers.
+3. Opened the Advanced options link under Passkeys (FIDO2) and checked the Microsoft Authenticator option. This enforces strict app restrictions so users can only use the official app, blocking unmanaged or personal password managers.
 
 ![Advanced FIDO2 Configuration Enclave](./images/Advanced-Options-FIDO2.png)
 ![Authentication Method Summary Verification](./images/Authentication-Method-Summary.png)
@@ -39,7 +39,7 @@ Before creating granular access rules, the FIDO2 security key authentication met
 
 ![Conditional Access Policies Dashboard](./images/Conditional-Access-Policies.png)
 
-2. Opened the target pilot policy, which originally relied on the basic, legacy "Require multifactor authentication" grant rule.
+2. Opened the target MFA Pilot policy, which originally relied on the basic, legacy "Require multifactor authentication" grant rule.
 
 ![Legacy Policy Assessment](./images/MFA-Grant.png)
 
@@ -50,26 +50,20 @@ Before creating granular access rules, the FIDO2 security key authentication met
 ---
 
 ### Subtask 3: Configure an Android Passkey for User Login
-Because creating a passkey requires a direct Bluetooth proximity handshake between the workstation and the mobile device, this workflow was executed using a dedicated test identity outside of a virtualized context.
-1. Initiated a fresh login session. The account was stopped by a directory-enforced "More information required" prompt to force security registration.
+Since setting up a passkey requires a direct Bluetooth connection between your computer and phone, this workflow was done on a local PC instead of a virtual machine. 
+1. When logging in for the first time, Entra paused the session with a "More information required" prompt to force the security registration, selected **Next**.
 
 ![Directory Onboarding Intercept](./images/More-Info-Needed-Prompt.png)
 
-2. Approved a baseline number-matching push notification to securely establish the initial onboarding session context.
-
-![MFA Baseline Verification](./images/Authenticator-Request.png)
-![Initial MFA Session Entry](./images/MFA-Try.png)
-
-3. When prompted to create a passkey in Microsoft Authenticator, selected **Having trouble?** followed by **Create your passkey a different way** to explicitly trigger the cross-device registration flow. Selected **Next**.
+2. When prompted to create a passkey in Microsoft Authenticator, selected **Next**.
 
 ![Hardware Onboarding Portal](./images/Android-Authenticator-Setup.png)
 
-4. Initialized the local enrollment handler, named the hardware token `Android` for asset tracking, and used the phone's camera to scan the onboarding QR code to establish the secure Bluetooth link.
+3. Named the hardware key `Android` for asset tracking, and used the phone's camera to scan the onboarding QR code to establish the secure Bluetooth link.
 
 ![Cryptographic Token Labeling](./images/Android-Authenticator-Setup-Naming.png)
-![MFA Authenticator Baseline Registration](./images/MFA-Authenticator-Added.png)
 
-5. Completed the biometric confirmation on the physical phone to finalize the enrollment and write the key to the hardware enclave.
+4. Completed the biometric scan on the Android phone to finish the setup and securely save the passkey to the device.
 
 ![Registration Confirmation](./images/Android-Passkey-Created.png)
 
@@ -84,15 +78,15 @@ Because creating a passkey requires a direct Bluetooth proximity handshake betwe
 
 ![QR-Code Handshake](./images/Sign-In-With-Passkey.png)
 
-3. Scanned the QR code and provided biometric verification on the handset. This executes a localized Bluetooth proximity check to verify the physical device is in front of the terminal.
+3. Scanned the QR code and used biometrics on the phone, which triggers a quick Bluetooth check to make sure the device is physically next to the computer.
 
 ![Biometric Verification Checkpoint](./images/Sign-In-With-Passkey-Success.png)
 
-4. Confirmed successful portal entry as a zero-privilege user without sending a single password string or standard push notification over the wire.
+4. Confirmed successful entry into the portal as a standard test user without typing a single password or dealing with standard push notifications.
 
 ![Successful Authenticated Session](./images/Logged-In-View-TestUser.png)
 
-5. Audited the user's profile security info from the administrative portal to verify that the device-bound passkey was successfully registered alongside legacy options and marked as the primary high-assurance factor.
+5. Checked the user's security info in the admin portal to confirm the new passkey was successfully registered alongside old methods and set as the main high-security option.
 
 ![Security Info State Verification](./images/Security-Info-TestUser.png)
 
