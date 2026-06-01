@@ -1,4 +1,4 @@
-# Lab 03: Phishing-Resistant MFA via Entra ID FIDO2 Passkeys
+# Lab 03: Phishing-Resistant MFA via FIDO2 Passkeys
 
 ## 🎯 Lab Objective
 The goal of this lab is to move an Entra ID tenant away from standard MFA methods like push notifications and configure custom Authentication Strengths to enforce hardware-bound FIDO2 Passkeys. This setup addresses Adversary-in-the-Middle (AiTM) phishing risks by verifying user onboarding, registering mobile devices as cryptographic tokens, and testing cross-device authentication flows.
@@ -59,9 +59,8 @@ Because creating a passkey requires a direct Bluetooth proximity handshake betwe
 
 ![MFA Baseline Verification](./images/Authenticator-Request.png)
 ![Initial MFA Session Entry](./images/MFA-Try.png)
-![Baseline MFA Step Validation](./images/MFA-Try1.png)
 
-3. When prompted to create a passkey in Microsoft Authenticator, selected **Having trouble?** followed by **Create your passkey a different way** to explicitly trigger the cross-device registration flow. Selected **Android** from the device platform list.
+3. When prompted to create a passkey in Microsoft Authenticator, selected **Having trouble?** followed by **Create your passkey a different way** to explicitly trigger the cross-device registration flow. Selected **Next**.
 
 ![Hardware Onboarding Portal](./images/Android-Authenticator-Setup.png)
 
