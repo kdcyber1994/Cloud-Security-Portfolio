@@ -93,7 +93,10 @@ With the tightened security controls live, a new activation request was triggere
 
 5. Checked the central **Resource audit** logs to confirm that every phase of the identity lifecycle—from the baseline assignment to the user's request and the final admin approval—was tracked with clear cryptographic timestamps.
 
-
+<div style="width: 100%; overflow: hidden; border: 1px solid #ddd; border-radius: 6px;">
+  <img src="./images/Screenshot%202026-06-03%20150517.png" 
+       style="width: 125%; margin-left: -11%; margin-top: -4%; display: block; image-rendering: pixelated; image-rendering: crisp-edges;">
+</div>
 
 ---
 
