@@ -32,7 +32,7 @@ The first phase focuses on assigning a high-privilege role as an eligible entitl
 
 5. Confirmed the configuration saved successfully by checking the **Eligible assignments** dashboard for the targeted role.
 
-<img src="./images/Resource_Audit_Corrected.png" width="100%" style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
+![Verifying Eligible Assignment State](./images/TestUser_Assignments_Overview.png)
 
 ---
 
@@ -83,7 +83,7 @@ With the tightened security controls live, a new activation request was triggere
 
 ![Reviewing Incoming Pending Requests](./images/Approval_Requests.png)
 
-3. Selected the pending line item to open the configuration enclave, reviewed the user's business justification, entered an administrative audit note ("*Approved request*"), and clicked **Submit**.
+3. Selected the pending line item to open the configuration approval request, reviewed the user's business justification, entered an administrative audit note ("*Approved request*"), and clicked **Submit**.
 
 ![Authorizing Active Elevation Request](./images/Approval_Request_Continued.png)
 
