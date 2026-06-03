@@ -32,7 +32,7 @@ The first phase focuses on assigning a high-privilege role as an eligible entitl
 
 5. Confirmed the configuration saved successfully by checking the **Eligible assignments** dashboard for the targeted role.
 
-![Verifying Eligible Assignment State](./images/TestUser_Assignments_Overview.png)
+<img src="./images/Resource_Audit_Corrected.png" width="100%" style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
 
 ---
 
@@ -93,7 +93,7 @@ With the tightened security controls live, a new activation request was triggere
 
 5. Checked the central **Resource audit** logs to confirm that every phase of the identity lifecycle—from the baseline assignment to the user's request and the final admin approval—was tracked with clear cryptographic timestamps.
 
-![Reviewing Resource Audit Telemetry Logs](./images/Resource_Audit_Corrected.png)
+
 
 ---
 
