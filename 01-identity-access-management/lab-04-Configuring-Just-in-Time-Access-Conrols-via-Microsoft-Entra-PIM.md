@@ -22,7 +22,7 @@ The first phase focuses on assigning a high-privilege role as an eligible entitl
 
 ![Roles Catalog Assessment](./images/Roles_Overview.png)
 
-3. Selected the **User Administrator** role, clicked **Assignments > + Add assignments**, and set the scope type to **Directory**. This ensures permissions apply tenant-wide only when explicitly activated.
+3. Selected the **User Administrator** role, clicked **Assignments > + Add assignments**, and searched for **TestUser** to add them to the role. Set the assignment scope type to **Directory** to ensure these permissions apply tenant-wide only when explicitly activated.
 
 ![Configuring Target Assignment Scope](./images/Add_Role_Assignments_TestUser.png)
 
