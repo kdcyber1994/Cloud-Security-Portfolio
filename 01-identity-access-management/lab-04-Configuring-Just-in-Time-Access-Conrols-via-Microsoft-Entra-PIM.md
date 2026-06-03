@@ -93,7 +93,7 @@ With the tightened security controls live, a new activation request was triggere
 
 5. Checked the central **Resource audit** logs to confirm that every phase of the identity lifecycle—from the baseline assignment to the user's request and the final admin approval—was tracked with clear cryptographic timestamps.
 
-![Reviewing Resource Audit Telemetry Logs](./images/Resource_Audit.png)
+![Reviewing Resource Audit Telemetry Logs](./images/Resource_Audit_Corrected.png)
 
 ---
 
