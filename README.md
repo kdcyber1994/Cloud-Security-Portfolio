@@ -20,7 +20,7 @@ Welcome to my enterprise cloud security repository. This space serves as a live 
 * **[Lab 04: Just-in-Time Access Controls via Microsoft Entra PIM](./01-identity-access-management/lab-04-Configuring-Just-in-Time-Access-Conrols-via-Microsoft-Entra-PIM.md)** — Configured Just-in-Time (JIT) access and hardened the setup by forcing activation requests to go through a manual administrator approval workflow. 
 
 ### Infrastructure & Data Security
-* **[Lab 05: Restricting Key Vault Public Perimeters and Implementing Multi-Layer Access Validation](./lab-05-key-vault-perimeter-hardening.md)** — Closing internet-facing exposure on an Azure Key Vault by restricting access to a specific trusted public IP and implementing modern Azure RBAC to separate vault management from secret visibility.
+* **[Lab 05: Restricting Key Vault Public Perimeters and Implementing Multi-Layer Access Validation](./01-identity-access-management/lab-05-key-vault-perimeter-hardening.md)** — Closing internet-facing exposure on an Azure Key Vault by restricting access to a specific trusted public IP and implementing modern Azure RBAC to separate vault management from secret visibility.
 
 ---
 *Maintained by Kevin Dunn — Security Engineer*
