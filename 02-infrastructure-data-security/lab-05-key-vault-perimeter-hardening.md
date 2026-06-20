@@ -16,15 +16,15 @@ To secure sensitive secrets and meet standard compliance rules, we need a layere
 The first phase focuses on building a secure vault from scratch and locking down settings that cannot be easily changed later.
 1. Navigated to the Azure Portal and started a new Key Vault deployment under the name **`kv-cyberlab-secure`**. Selected the **Premium SKU** to make sure cryptographic keys are backed by high-level hardware security modules.
 
-![Initializing Key Vault Provisioning](./images/Create_Key_Vault.png)
+![Initializing Key Vault Provisioning](../01-identity-access-management/images/Create_Key_Vault.png)
 
 2. Opened the recovery tabs and set the soft-delete retention to **7 days** for the purposes of this lab. Checked the box to **Enable purge protection** to ensure that no one, not even a subscription owner, can permanently wipe out secrets before the retention period is up.
 
-![Reviewing Completed Configuration Profile](./images/Create_Key_Vault_Summary.png)
+![Reviewing Completed Configuration Profile](../01-identity-access-management/images/Create_Key_Vault_Summary.png)
 
 3. Reviewed the final parameters and created the resource inside the `rg-cyberlabs` resource group.
 
-![Confirming Completed Infrastructure Deployment](./images/Key_Vault_Overview.png)
+![Confirming Completed Infrastructure Deployment](../01-identity-access-management/images/Key_Vault_Overview.png)
 
 ---
 
@@ -32,23 +32,23 @@ The first phase focuses on building a secure vault from scratch and locking down
 To make sure no other teams can spin up unsecured vaults without deletion protection, an organization-wide Azure Policy was put in place.
 1. Opened the **Policy** dashboard, went to **Definitions**, and searched for Key Vault rules.
 
-![Assessing Available Key Vault Built-In Definitions](./images/Policy_Definitions.png)
+![Assessing Available Key Vault Built-In Definitions](../01-identity-access-management/images/Policy_Definitions.png)
 
 2. Selected the rule **`Key vaults should have deletion protection enabled`** and clicked **Assign policy**. Set the scope to apply to the entire subscription.
 
-![Configuring Assignment Target Scope](./images/Key_Vault_Assign_Policy.png)
+![Configuring Assignment Target Scope](../01-identity-access-management/images/Key_Vault_Assign_Policy.png)
 
 3. On the Parameters tab, changed the default setting from Audit to **Deny**. This will actively block any future vault deployments if they do not have purge protection turned on.
 
-![Modifying Policy Enforcement Parameters to Deny](./images/Key_Vault_Assign_Policy_Parameters_Cont_Deny.png)
+![Modifying Policy Enforcement Parameters to Deny](../01-identity-access-management/images/Key_Vault_Assign_Policy_Parameters_Cont_Deny.png)
 
 4. Saved the policy assignment and confirmed it was active on the dashboard.
 
-![Verifying Live Policy Definition Baseline](./images/Key_Vault_Assign_Policy_Summary.png)
+![Verifying Live Policy Definition Baseline](../01-identity-access-management/images/Key_Vault_Assign_Policy_Summary.png)
 
 5. **Testing the Policy Guardrail:** Ran a test by trying to deploy a separate vault named `Compliance-Test` with purge protection turned off. The Azure engine immediately caught it, failed the validation check, and blocked the deployment from happening.
 
-![Validating Scale-Level Policy Enforcement Block](./images/Key_Vault_Failed_Validation_Check_Error.png)
+![Validating Scale-Level Policy Enforcement Block](../01-identity-access-management/images/Key_Vault_Failed_Validation_Check_Error.png)
 
 ---
 
@@ -57,7 +57,7 @@ With global policy locked down, the next step was restricting the network perime
 1. Opened `kv-cyberlab-secure`, went to **Networking**, and switched the main setting to **Allow public access from specific virtual networks and IP addresses**.
 2. Looked up the home router public WAN IP address. Entered the IP range into the firewall rule box. Note that standard private local IPs like `10.x.x.x` cannot be used here.
 
-![Configuring Firewall IP Whitelist Boundary](./images/Key_Vault_Firewall_IP_Setup.png)
+![Configuring Firewall IP Whitelist Boundary](../01-identity-access-management/images/Key_Vault_Firewall_IP_Setup.png)
 
 3. Left the box checked for **Allow trusted Microsoft services to bypass this firewall** so that background tasks like Azure Backup do not break. Clicked Apply to save the network boundary.
 
@@ -68,19 +68,19 @@ Before assigning permissions, a baseline test was run from an unapproved network
 1. Authenticated into the Azure Portal on the mobile device to verify the active user session within the target tenant environment.
 
 <p align="center">
-  <img src="./images/Login_Confirmed.jpg" width="320" alt="Confirming Active Portal Session">
+  <img src="../01-identity-access-management/images/Login_Confirmed.jpg" width="320" alt="Confirming Active Portal Session">
 </p>
 
 2. Turned on a commercial VPN on the mobile device to route traffic through an untrusted IP address out of Detroit.
 
 <p align="center">
-  <img src="./images/VPN_Connected.jpg" width="320" alt="Establishing Adversarial VPN Network Tunnel">
+  <img src="../01-identity-access-management/images/VPN_Connected.jpg" width="320" alt="Establishing Adversarial VPN Network Tunnel">
 </p>
 
 3. Navigated to the key vault console on the device and tried to click into the **Secrets** menu. The portal immediately blocked access with an **`RBAC Permission Failure`** message.
 
 <p align="center">
-  <img src="./images/RBAC_Block.jpg" width="320" alt="Observing Initial Identity Authorization Block">
+  <img src="../01-identity-access-management/images/RBAC_Block.jpg" width="320" alt="Observing Initial Identity Authorization Block">
 </p>
 
 *Takeaway:* This proves that Azure always checks identity and permissions before it looks at the network firewall. Because this account did not have data permissions yet, it was stopped at the identity layer.
@@ -92,27 +92,27 @@ To finish the setup, permissions were assigned to pass the identity check so the
 1. Switched back to the home computer, went to the vault access configuration settings, and verified the permission model was set to **Azure role-based access control**.
 2. Navigated to **Access control (IAM)** and clicked **Add role assignment**.
 
-![Initializing Granular Role Assignment Workflow](./images/Key_Vault_IAM.png)
+![Initializing Granular Role Assignment Workflow](../01-identity-access-management/images/Key_Vault_IAM.png)
 
 3. Selected the **Key Vault Secrets Officer** role, which allows full management of secrets without giving away control over the infrastructure itself.
 
-![Selecting Target Data Plane Secrets Officer Role](./images/Key_Vault_IAM_Role_Assignment.png)
+![Selecting Target Data Plane Secrets Officer Role](../01-identity-access-management/images/Key_Vault_IAM_Role_Assignment.png)
 
 4. Assigned the role directly to the primary user account and saved it.
 
-![Finalizing Direct Identity Mapping](./images/Key_Vault_Role_Assignment_Cont.png)
+![Finalizing Direct Identity Mapping](../01-identity-access-management/images/Key_Vault_Role_Assignment_Cont.png)
 
 5. **Testing the Firewall Boundary:** Went back to the mobile phone on the VPN and refreshed the session. 
 6. Tried to open the secrets tab again. With the identity check now passing, the network layer stepped in. The vault successfully blocked the connection and displayed a **`Firewall is turned on`** error message. This proves that an attacker cannot steal secrets even if they manage to compromise the user account.
 
 <p align="center">
-  <img src="./images/Firewall_Block.jpg" width="320" alt="Confirming Network Perimeter Hardening Success">
+  <img src="../01-identity-access-management/images/Firewall_Block.jpg" width="320" alt="Confirming Network Perimeter Hardening Success">
 </p>
 
 7. Disconnected the VPN on the phone to go back to the whitelisted home network. Refreshed the page and full access to the secrets menu was restored instantly with no errors.
 
 <p align="center">
-  <img src="./images/KeyVault_Without_VPN.jpg" width="320" alt="Verifying Seamless Authorized Egress Access">
+  <img src="../01-identity-access-management/images/KeyVault_Without_VPN.jpg" width="320" alt="Verifying Seamless Authorized Egress Access">
 </p>
 
 ---
