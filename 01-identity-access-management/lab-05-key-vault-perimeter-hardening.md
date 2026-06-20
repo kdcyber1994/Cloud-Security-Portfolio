@@ -65,18 +65,23 @@ With global policy locked down, the next step was restricting the network perime
 
 ### Subtask 3: Test the Security Order of Operations
 Before assigning permissions, a baseline test was run from an unapproved network to see how Azure handles unauthorized requests.
-1. Turned on a commercial VPN on a mobile device to route traffic through an untrusted IP address out of Detroit.
+1. Authenticated into the Azure Portal on the mobile device to verify the active user session within the target tenant environment.
 
-<div align="center">
-  <img src="./images/VPN_Connected.jpg" width="450" alt="Establishing Adversarial VPN Network Tunnel">
-</div>
+<p align="center">
+  <img src="./images/Login_Confirmed.jpg" width="320" alt="Confirming Active Portal Session">
+</p>
 
-2. Logged into the Azure Portal on the mobile device and went to the key vault console.
-3. Tried to click into the **Secrets** menu. The portal immediately blocked access with an **`RBAC Permission Failure`** message.
+2. Turned on a commercial VPN on the mobile device to route traffic through an untrusted IP address out of Detroit.
 
-<div align="center">
-  <img src="./images/RBAC_Block.jpg" width="450" alt="Observing Initial Identity Authorization Block">
-</div>
+<p align="center">
+  <img src="./images/VPN_Connected.jpg" width="320" alt="Establishing Adversarial VPN Network Tunnel">
+</p>
+
+3. Navigated to the key vault console on the device and tried to click into the **Secrets** menu. The portal immediately blocked access with an **`RBAC Permission Failure`** message.
+
+<p align="center">
+  <img src="./images/RBAC_Block.jpg" width="320" alt="Observing Initial Identity Authorization Block">
+</p>
 
 *Takeaway:* This proves that Azure always checks identity and permissions before it looks at the network firewall. Because this account did not have data permissions yet, it was stopped at the identity layer.
 
@@ -98,22 +103,17 @@ To finish the setup, permissions were assigned to pass the identity check so the
 ![Finalizing Direct Identity Mapping](./images/Key_Vault_Role_Assignment_Cont.png)
 
 5. **Testing the Firewall Boundary:** Went back to the mobile phone on the VPN and refreshed the session. 
-
-<div align="center">
-  <img src="./images/Login_Confirmed.jpg" width="450" alt="Confirming Active Portal Session via Untrusted Network">
-</div>
-
 6. Tried to open the secrets tab again. With the identity check now passing, the network layer stepped in. The vault successfully blocked the connection and displayed a **`Firewall is turned on`** error message. This proves that an attacker cannot steal secrets even if they manage to compromise the user account.
 
-<div align="center">
-  <img src="./images/Firewall_Block.jpg" width="450" alt="Confirming Network Perimeter Hardening Success">
-</div>
+<p align="center">
+  <img src="./images/Firewall_Block.jpg" width="320" alt="Confirming Network Perimeter Hardening Success">
+</p>
 
 7. Disconnected the VPN on the phone to go back to the whitelisted home network. Refreshed the page and full access to the secrets menu was restored instantly with no errors.
 
-<div align="center">
-  <img src="./images/KeyVault_Without_VPN.jpg" width="450" alt="Verifying Seamless Authorized Egress Access">
-</div>
+<p align="center">
+  <img src="./images/KeyVault_Without_VPN.jpg" width="320" alt="Verifying Seamless Authorized Egress Access">
+</p>
 
 ---
 
